@@ -116,13 +116,12 @@
       }, 3000);
     }
 
-  </script> 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  // Your Firebase config
+  // Firebase config (your project)
   const firebaseConfig = {
     apiKey: "AIzaSyDGq6qQXzqcJ95imJp6s2tFAV4E_y7wP2o",
     authDomain: "lovejournal-3b850.firebaseapp.com",
@@ -138,19 +137,21 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // Save entry to Firestore + Storage
-  async function saveEntry() {
+  // Expose saveEntry globally so button onclick works
+  window.saveEntry = async function() {
     let text = document.getElementById("entry").value.trim();
     let photoInput = document.getElementById("photo");
     let photoFile = photoInput.files[0];
     let photoURL = "";
 
+    // Upload photo if selected
     if (photoFile) {
       const storageRef = ref(storage, "photos/" + photoFile.name);
       await uploadBytes(storageRef, photoFile);
       photoURL = await getDownloadURL(storageRef);
     }
 
+    // Save to Firestore
     if (text !== "" || photoURL !== "") {
       await addDoc(collection(db, "entries"), {
         text: text,
@@ -161,9 +162,9 @@
       document.getElementById("entry").value = "";
       photoInput.value = "";
     }
-  }
+  };
 
-  // Load entries in real time
+  // Real-time listener: load entries for both you and Hellen
   onSnapshot(collection(db, "entries"), (snapshot) => {
     let journalDiv = document.getElementById("journal-entries");
     let timelineDiv = document.getElementById("timeline-entries");
@@ -181,6 +182,7 @@
     });
   });
 </script>
+
 
   
     <script>
