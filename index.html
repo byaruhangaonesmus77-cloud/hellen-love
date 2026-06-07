@@ -139,29 +139,25 @@
     const storage = getStorage(app);
 
     // Save entry
-    window.saveEntry = async function() {
-      let text = document.getElementById("entry").value.trim();
-      let photoInput = document.getElementById("photo");
-      let photoFile = photoInput.files[0];
-      let photoURL = "";
+   window.saveEntry = async function() {
+  let text = document.getElementById("entry").value.trim();
 
-      if (photoFile) {
-        const storageRef = ref(storage, "photos/" + photoFile.name);
-        await uploadBytes(storageRef, photoFile);
-        photoURL = await getDownloadURL(storageRef);
-      }
-
-      if (text !== "" || photoURL !== "") {
-        await addDoc(collection(db, "entries"), {
-          text: text,
-          photo: photoURL,
-          date: new Date().toLocaleString()
-        });
-
-        document.getElementById("entry").value = "";
-        photoInput.value = "";
-      }
-    };
+  if (text !== "") {
+    try {
+      await addDoc(collection(db, "entries"), {
+        text: text,
+        date: new Date().toLocaleString()
+      });
+      console.log("Saved to database!");
+      document.getElementById("entry").value = ""; // Clears the input box!
+      alert("Message saved successfully!");
+    } catch (error) {
+      console.error("Error saving message: ", error);
+    }
+  } else {
+    alert("Please type a message first!");
+  }
+};
 
     // Real-time listener
     onSnapshot(collection(db, "entries"), (snapshot) => {
