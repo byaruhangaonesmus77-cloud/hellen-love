@@ -56,16 +56,17 @@
   <script>
     document.getElementById("gate").style.display = "block";
 
-    function checkBirthday() {
-      let input = document.getElementById("birthday").value;
-      if (input === "30-07-2003") { // Replace with your birthday
-        document.getElementById("gate").style.display = "none";
-        document.getElementById("surprise").style.display = "block";
-        startSlideshow();
-      } else {
-        document.getElementById("message").innerText = "Hmm… try again, love 💕";
-      }
-    }
+  function checkBirthday() {
+  let input = document.getElementById("birthday").value.trim();
+  if (input === "30-07-2003" || input === "30/07/2003") {
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("surprise").style.display = "block";
+    startSlideshow();
+  } else {
+    document.getElementById("message").innerText = "Hmm… try again, love 💕 (Format: DD-MM-YYYY)";
+  }
+}
+  
 
     function startSlideshow() {
       let slides = document.querySelectorAll('.slideshow img');
