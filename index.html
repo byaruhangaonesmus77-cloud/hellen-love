@@ -116,33 +116,72 @@
       }, 3000);
     }
 
-    function saveEntry() {
-      let text = document.getElementById("entry").value.trim();
-      let photoInput = document.getElementById("photo");
-      let photoFile = photoInput.files[0];
+  </script> 
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-      if (text !== "" || photoFile) {
-        let date = new Date().toLocaleString();
-        let entryHTML = `<p><strong>${date}:</strong> ${text}</p>`;
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDGq6qQXzqcJ95imJp6s2tFAV4E_y7wP2o",
+    authDomain: "lovejournal-3b850.firebaseapp.com",
+    projectId: "lovejournal-3b850",
+    storageBucket: "lovejournal-3b850.appspot.com",
+    messagingSenderId: "884818004432",
+    appId: "1:884818004432:web:64b2e5454f875411a2d1d5",
+    measurementId: "G-Q7T3ZCN6J0"
+  };
 
-        if (photoFile) {
-          let reader = new FileReader();
-          reader.onload = function(e) {
-            entryHTML += `<img src="${e.target.result}" alt="Memory photo">`;
-            document.getElementById("journal-entries").innerHTML += entryHTML;
-            document.getElementById("timeline-entries").innerHTML += entryHTML;
-          }
-          reader.readAsDataURL(photoFile);
-        } else {
-          document.getElementById("journal-entries").innerHTML += entryHTML;
-          document.getElementById("timeline-entries").innerHTML += entryHTML;
-        }
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-        document.getElementById("entry").value = "";
-        photoInput.value = "";
-      }
+  // Save entry to Firestore + Storage
+  async function saveEntry() {
+    let text = document.getElementById("entry").value.trim();
+    let photoInput = document.getElementById("photo");
+    let photoFile = photoInput.files[0];
+    let photoURL = "";
+
+    if (photoFile) {
+      const storageRef = ref(storage, "photos/" + photoFile.name);
+      await uploadBytes(storageRef, photoFile);
+      photoURL = await getDownloadURL(storageRef);
     }
-  </script>
+
+    if (text !== "" || photoURL !== "") {
+      await addDoc(collection(db, "entries"), {
+        text: text,
+        photo: photoURL,
+        date: new Date().toLocaleString()
+      });
+
+      document.getElementById("entry").value = "";
+      photoInput.value = "";
+    }
+  }
+
+  // Load entries in real time
+  onSnapshot(collection(db, "entries"), (snapshot) => {
+    let journalDiv = document.getElementById("journal-entries");
+    let timelineDiv = document.getElementById("timeline-entries");
+    journalDiv.innerHTML = "";
+    timelineDiv.innerHTML = "";
+
+    snapshot.forEach((doc) => {
+      let data = doc.data();
+      let entryHTML = `<p><strong>${data.date}:</strong> ${data.text}</p>`;
+      if (data.photo) {
+        entryHTML += `<img src="${data.photo}" alt="Memory photo">`;
+      }
+      journalDiv.innerHTML += entryHTML;
+      timelineDiv.innerHTML += entryHTML;
+    });
+  });
+</script>
+
   
     <script>
      if ('serviceWorker' in navigator) {
