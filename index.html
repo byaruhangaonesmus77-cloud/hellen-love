@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>For My Love Hellen 💕</title>
+  <style>
+    body {
+      font-family: 'Cursive', sans-serif;
+      text-align: center;
+      background: linear-gradient(to right, #ff9a9e, #fad0c4);
+      color: #fff;
+      margin: 0;
+      padding: 40px;
+    }
+    #gate, #surprise { display: none; }
+    h1 { animation: glow 2s infinite alternate; }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff; }
+      to { text-shadow: 0 0 20px #ff69b4; }
+    }
+    .slideshow img {
+      width: 250px;
+      border-radius: 15px;
+      display: none;
+    }
+    .slideshow img.active { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Birthday Gate -->
+  <div id="gate">
+    <h2>Enter my special day 💖</h2>
+    <input type="text" id="birthday" placeholder="30-07-2003">
+    <button onclick="checkBirthday()">Unlock</button>
+    <p id="message"></p>
+  </div>
+
+  <!-- Surprise Page -->
+  <div id="surprise">
+    <h1>💖 To My Lovely Hellen 💖</h1>
+    <p>You are my sunshine 🌞, my happiness 😊, and my forever love 💕Thanks for choosing me always love,i will also always choose you. I love you dangerously and misses you so much</p>
+
+    <!-- Background Music -->
+    <audio controls autoplay loop>
+      <source src="your-music-file.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Slideshow -->
+    <div class="slideshow">
+      <img src="hellen1.jpg" class="active">
+      <img src="hellen2.jpg">
+      <img src="hellen3.jpg">
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("gate").style.display = "block";
+
+    function checkBirthday() {
+      let input = document.getElementById("birthday").value;
+      if (input === "18-05-2002") { // Replace with your birthday
+        document.getElementById("gate").style.display = "none";
+        document.getElementById("surprise").style.display = "block";
+        startSlideshow();
+      } else {
+        document.getElementById("message").innerText = "Hmm… try again, love 💕";
+      }
+    }
+
+    function startSlideshow() {
+      let slides = document.querySelectorAll('.slideshow img');
+      let index = 0;
+      setInterval(() => {
+        slides[index].classList.remove('active');
+        index = (index + 1) % slides.length;
+        slides[index].classList.add('active');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
