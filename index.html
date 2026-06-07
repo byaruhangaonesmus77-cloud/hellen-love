@@ -91,6 +91,7 @@
     </div>
   </div>
 
+  <!-- Birthday + Slideshow Logic -->
   <script>
     document.getElementById("gate").style.display = "block";
 
@@ -100,7 +101,7 @@
         document.getElementById("gate").style.display = "none";
         document.getElementById("surprise").style.display = "block";
         startSlideshow();
-        document.querySelector("audio").play(); // start music after unlock
+        document.querySelector("audio").play();
       } else {
         document.getElementById("message").innerText = "Hmm… try again, love 💕 (Format: DD-MM-YYYY)";
       }
@@ -115,81 +116,78 @@
         slides[index].classList.add('active');
       }, 3000);
     }
+  </script>
 
+  <!-- Firebase Integration -->
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  // Firebase config (your project)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDGq6qQXzqcJ95imJp6s2tFAV4E_y7wP2o",
-    authDomain: "lovejournal-3b850.firebaseapp.com",
-    projectId: "lovejournal-3b850",
-    storageBucket: "lovejournal-3b850.appspot.com",
-    messagingSenderId: "884818004432",
-    appId: "1:884818004432:web:64b2e5454f875411a2d1d5",
-    measurementId: "G-Q7T3ZCN6J0"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDGq6qQXzqcJ95imJp6s2tFAV4E_y7wP2o",
+      authDomain: "lovejournal-3b850.firebaseapp.com",
+      projectId: "lovejournal-3b850",
+      storageBucket: "lovejournal-3b850.appspot.com",
+      messagingSenderId: "884818004432",
+      appId: "1:884818004432:web:64b2e5454f875411a2d1d5",
+      measurementId: "G-Q7T3ZCN6J0"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-  // Expose saveEntry globally so button onclick works
-  window.saveEntry = async function() {
-    let text = document.getElementById("entry").value.trim();
-    let photoInput = document.getElementById("photo");
-    let photoFile = photoInput.files[0];
-    let photoURL = "";
+    // Save entry
+    window.saveEntry = async function() {
+      let text = document.getElementById("entry").value.trim();
+      let photoInput = document.getElementById("photo");
+      let photoFile = photoInput.files[0];
+      let photoURL = "";
 
-    // Upload photo if selected
-    if (photoFile) {
-      const storageRef = ref(storage, "photos/" + photoFile.name);
-      await uploadBytes(storageRef, photoFile);
-      photoURL = await getDownloadURL(storageRef);
-    }
-
-    // Save to Firestore
-    if (text !== "" || photoURL !== "") {
-      await addDoc(collection(db, "entries"), {
-        text: text,
-        photo: photoURL,
-        date: new Date().toLocaleString()
-      });
-
-      document.getElementById("entry").value = "";
-      photoInput.value = "";
-    }
-  };
-
-  // Real-time listener: load entries for both you and Hellen
-  onSnapshot(collection(db, "entries"), (snapshot) => {
-    let journalDiv = document.getElementById("journal-entries");
-    let timelineDiv = document.getElementById("timeline-entries");
-    journalDiv.innerHTML = "";
-    timelineDiv.innerHTML = "";
-
-    snapshot.forEach((doc) => {
-      let data = doc.data();
-      let entryHTML = `<p><strong>${data.date}:</strong> ${data.text}</p>`;
-      if (data.photo) {
-        entryHTML += `<img src="${data.photo}" alt="Memory photo">`;
+      if (photoFile) {
+        const storageRef = ref(storage, "photos/" + photoFile.name);
+        await uploadBytes(storageRef, photoFile);
+        photoURL = await getDownloadURL(storageRef);
       }
-      journalDiv.innerHTML += entryHTML;
-      timelineDiv.innerHTML += entryHTML;
+
+      if (text !== "" || photoURL !== "") {
+        await addDoc(collection(db, "entries"), {
+          text: text,
+          photo: photoURL,
+          date: new Date().toLocaleString()
+        });
+
+        document.getElementById("entry").value = "";
+        photoInput.value = "";
+      }
+    };
+
+    // Real-time listener
+    onSnapshot(collection(db, "entries"), (snapshot) => {
+      let journalDiv = document.getElementById("journal-entries");
+      let timelineDiv = document.getElementById("timeline-entries");
+      journalDiv.innerHTML = "";
+      timelineDiv.innerHTML = "";
+
+      snapshot.forEach((doc) => {
+        let data = doc.data();
+        let entryHTML = `<p><strong>${data.date}:</strong> ${data.text}</p>`;
+        if (data.photo) {
+          entryHTML += `<img src="${data.photo}" alt="Memory photo">`;
+        }
+        journalDiv.innerHTML += entryHTML;
+        timelineDiv.innerHTML += entryHTML;
+      });
     });
-  });
-</script>
+  </script>
 
-
-  
-    <script>
-     if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(() => console.log('Service Worker Registered'));
-  }
-</script>
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    }
+  </script>
 </body>
 </html>
