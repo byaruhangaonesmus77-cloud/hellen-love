@@ -24,6 +24,24 @@
       display: none;
     }
     .slideshow img.active { display: block; }
+    #journal, #timeline {
+      margin-top: 30px;
+      text-align: left;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    #entries p {
+      background: rgba(255,255,255,0.2);
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    #entries img {
+      margin-top: 10px;
+      border-radius: 10px;
+      max-width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -38,7 +56,7 @@
   <!-- Surprise Page -->
   <div id="surprise">
     <h1>💖 To My Lovely Hellen 💖</h1>
-    <p>You are my sunshine 🌞, my happiness 😊, and my forever love 💕Thanks for choosing me always love,i will also always choose you. I love you dangerously and misses you so much</p>
+    <p>You are my sunshine 🌞, my happiness 😊, and my forever love 💕 Thanks for choosing me always love, I will also always choose you. I love you dangerously and miss you so much.</p>
 
     <!-- Background Music -->
     <audio controls autoplay loop>
@@ -50,23 +68,41 @@
       <img src="hellen1.jpg" class="active">
       <img src="hellen2.jpg">
       <img src="hellen3.jpg">
+      <img src="hellen4.jpg">
+      <img src="hellen5.jpg">
+      <img src="hellen5.jpg">
+    </div>
+
+    <!-- Shared Journal -->
+    <div id="journal">
+      <h2>Our Shared Journal 💌</h2>
+      <textarea id="entry" placeholder="Write your thoughts here..."></textarea><br>
+      <input type="file" id="photo" accept="image/*"><br><br>
+      <button onclick="saveEntry()">Save</button>
+      <div id="entries"></div>
+    </div>
+
+    <!-- Memory Timeline -->
+    <div id="timeline">
+      <h2>Our Love Journey ❤️</h2>
+      <div id="entries"></div>
     </div>
   </div>
 
   <script>
     document.getElementById("gate").style.display = "block";
 
-  function checkBirthday() {
-  let input = document.getElementById("birthday").value.trim();
-  if (input === "30-07-2003" || input === "30/07/2003") {
-    document.getElementById("gate").style.display = "none";
-    document.getElementById("surprise").style.display = "block";
-    startSlideshow();
-  } else {
-    document.getElementById("message").innerText = "Hmm… try again, love 💕 (Format: DD-MM-YYYY)";
-  }
-}
-  
+    function checkBirthday() {
+      let input = document.getElementById("birthday").value.trim();
+      if (input === "30-07-2003" || input === "30/07/2003") {
+        document.getElementById("gate").style.display = "none";
+        document.getElementById("surprise").style.display = "block";
+        startSlideshow();
+        document.querySelector("audio").play(); // start music after unlock
+      } else {
+        document.getElementById("message").innerText = "Hmm… try again, love 💕 (Format: DD-MM-YYYY)";
+      }
+    }
 
     function startSlideshow() {
       let slides = document.querySelectorAll('.slideshow img');
@@ -76,6 +112,35 @@
         index = (index + 1) % slides.length;
         slides[index].classList.add('active');
       }, 3000);
+    }
+
+    function saveEntry() {
+      let text = document.getElementById("entry").value.trim();
+      let photoInput = document.getElementById("photo");
+      let photoFile = photoInput.files[0];
+
+      if (text !== "" || photoFile) {
+        let date = new Date().toLocaleString();
+        let entryHTML = `<p><strong>${date}:</strong> ${text}</p>`;
+
+        if (photoFile) {
+          let reader = new FileReader();
+          reader.onload = function(e) {
+            entryHTML += `<img src="${e.target.result}" alt="Memory photo">`;
+            document.querySelectorAll("#entries").forEach(div => {
+              div.innerHTML += entryHTML;
+            });
+          }
+          reader.readAsDataURL(photoFile);
+        } else {
+          document.querySelectorAll("#entries").forEach(div => {
+            div.innerHTML += entryHTML;
+          });
+        }
+
+        document.getElementById("entry").value = "";
+        photoInput.value = "";
+      }
     }
   </script>
 </body>
